@@ -1,8 +1,8 @@
 //Activity 1 Day 2
 // Creating map object
 var myMap = L.map("map", {
-    center: [40.7, -73.95],
-    zoom: 11
+    center: [0, 0],
+    zoom: 5
 });
 
 // Adding tile layer to the map
@@ -16,7 +16,7 @@ L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
 }).addTo(myMap);
 
 // Load in geojson data
-var geoData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson";
+var geoData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
 // Function that will determine the color of the marker based on the magnitude
 function chooseColor(mag) {
@@ -38,21 +38,72 @@ function chooseColor(mag) {
 //Activity 9 Day 1
 // Function to determine marker size based on magnitude
 function markerSize(mag) {
-    return mag / 40;
-}
+    if (mag > 0) {
+        return mag * 100000
+    } else {
+        return 1
+    }
+};
 
 
 //Grab data with d3
 
+// Grabbing our GeoJSON data..
 d3.json(geoData, function(data) {
-
-    //Create a new geoJSON layer with the retrieved data
+    // Creating a geoJSON layer with the retrieved data
     L.geoJson(data, {
-        //Passing in our
-    })
-})
+        style: function(features) {
+            return {
+                color: "white",
+                fillColor: chooseColor(features.properties.mag),
+                fillOpacity: 1,
+                weight: 1.5,
+                radius: markerSize(features.properties.mag)
+            };
+        },
+        // Binding a pop-up to each layer
+        onEachFeature: function(features, layer) {
+            layer.bindPopup("Earthquake Magnitude: " + features.properties.mag + "<br>Location: <br>" +
+                +features.properties.place);
+        },
+        pointToLayer: function(features, latlng) {
+            return
+            // Create a circle and pass in some initial options
+            L.circleMarker(latlng)
+
+        }
+    }).addTo(myMap);
+
+    // // // Define arrays to hold created earthquake markers
+    // var earthquakeMarkers = [];
 
 
+    // Set up the legend
+    var legend = L.control({ position: "bottomright" });
+    legend.onAdd = function() {
+        var div = L.DomUtil.create("div", "info legend");
+        var limits = [0, 3.9, 4.9, 5.9, 6.9, 7.9, 10];
+        var colors = ["green", "#ADFF2F", "yellow", "orange", "red", "purple"];
+        var labels = [];
 
-// Define arrays to hold created earthquake markers
-var earthquakeMarkers = [];
+        //   // Add min & max
+        //   var legendInfo = "<h1>Median Income</h1>" +
+        //     "<div class=\"labels\">" +
+        //       "<div class=\"min\">" + limits[0] + "</div>" +
+        //       "<div class=\"max\">" + limits[limits.length - 1] + "</div>" +
+        //     "</div>";
+
+        //   div.innerHTML = legendInfo;
+
+        limits.forEach(function(limit, index) {
+            labels.push("<li style=\"background-color: " + colors[index] + "\"></li>");
+        });
+
+        div.innerHTML += "<ul>" + labels.join("") + "</ul>";
+        return div;
+    };
+
+    // Adding legend to the map
+    legend.addTo(myMap);
+
+});
