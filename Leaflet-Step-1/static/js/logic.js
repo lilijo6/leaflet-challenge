@@ -18,8 +18,8 @@ L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
 // Load in geojson data
 var geoData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
-//creating earthquake data layer group
-var earthquakes = new L.LayerGroup();
+// //creating earthquake data layer group
+// var earthquakes = new L.LayerGroup();
 
 //Grab data with d3
 
@@ -70,7 +70,7 @@ d3.json(geoData, function(data) {
         // Binding a pop-up to each layer
         onEachFeature: function(feature, layer) {
             layer.bindPopup("Earthquake Magnitude: " + feature.properties.mag + "<br>Location: <br>" +
-                +feature.properties.place);
+                feature.properties.place);
         },
 
     }).addTo(myMap);
